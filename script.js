@@ -1,3 +1,4 @@
+let miniChart;
 const perfBody2 = document.getElementById("perfBody2");
 const filterJenis = document.getElementById("filterJenis");
 const API_URL = "https://script.google.com/macros/s/AKfycbwOkWjZTW7ikhAcexlE6JEKD8Vo7EZ5YncP9oVxWgJSqJh3ppYQW-11rg-J1t38rnZMqw/exec";
@@ -153,63 +154,72 @@ function renderKPI(data) {
     data.reduce((a,b)=>a+Number(b.OPEN_TTL),0);
 }
 
-
 function renderPerformance(data) {
-  const map = {};
+  const rows = [];
 
   data.forEach(d => {
-    const open = Number(d.OPEN_TTL);
-    const close = Number(d.CLOSE_TIKET);
+    const openSQM = Number(d.OPEN_SQM);
+    const openREG = Number(d.OPEN_REGULER);
+    const openUNS = Number(d.OPEN_UNSPEC);
 
-    const shareOpen = open / 2;
-    const shareClose = close / 2;
+    const closeSQM = Number(d.SQM_CLOSE);
+    const closeREG = Number(d.REGULER_CLOSE);
+    const closeUNS = Number(d.UNSPEC_CLOSE);
 
-    // Teknisi utama
-    if (d.TEKNISI) {
-      if (!map[d.TEKNISI]) map[d.TEKNISI] = { open: 0, close: 0 };
-      map[d.TEKNISI].open += shareOpen;
-      map[d.TEKNISI].close += shareClose;
-    }
-
-    // Teknisi 2
-    if (d.TEKNISI2) {
-      if (!map[d.TEKNISI2]) map[d.TEKNISI2] = { open: 0, close: 0 };
-      map[d.TEKNISI2].open += shareOpen;
-      map[d.TEKNISI2].close += shareClose;
-    }
-  });
-
-  // Konversi ke array + hitung achievement
-  const result = Object.keys(map).map(nama => {
-    const open = Math.round(map[nama].open);
-    const close = Math.round(map[nama].close);
+    const open = openSQM + openREG + openUNS;
+    const close = closeSQM + closeREG + closeUNS;
     const total = open + close;
     const ach = total === 0 ? 0 : Math.round((close / total) * 100);
-    return { nama, open, close, ach };
+
+    rows.push({
+      teknisi: d.TEKNISI || "-",
+      teknisi2: d.TEKNISI2 || "-",
+      openSQM, openREG, openUNS,
+      closeSQM, closeREG, closeUNS,
+      open, close, ach
+    });
   });
 
-  // Ranking berdasarkan achievement
-  result.sort((a, b) => b.ach - a.ach);
+  // Ranking berdasarkan pencapaian
+  rows.sort((a, b) => b.ach - a.ach);
 
   perfBody.innerHTML = "";
 
-  result.forEach((r, i) => {
+  rows.forEach((r, i) => {
     const cls =
       r.ach >= 80 ? "perf-good" :
       r.ach >= 50 ? "perf-medium" :
       "perf-bad";
 
     perfBody.innerHTML += `
-      <tr class="${cls}">
-        <td>${i + 1}</td>
-        <td>${r.nama}</td>
-        <td>${r.open}</td>
-        <td>${r.close}</td>
-        <td>${r.ach}%</td>
-      </tr>
-    `;
+  <tr class="${cls}">
+    <td>${i + 1}</td>
+    <td>${r.teknisi}</td>
+    <td>${r.teknisi2}</td>
+
+    <td>${r.openSQM}</td>
+    <td>${r.openREG}</td>
+    <td>${r.openUNS}</td>
+
+    <td>${r.closeSQM}</td>
+    <td>${r.closeREG}</td>
+    <td>${r.closeUNS}</td>
+
+    <!-- VALIDASI -->
+    <td>0</td>
+    <td>0</td>
+    <td>0</td>
+    <td>0</td>
+
+    <td class="clickable">${r.open}</td>
+    <td class="clickable">${r.close}</td>
+    <td>${r.ach}%</td>
+  </tr>
+`;
+
   });
 }
+
 
 
 function renderChart(data) {
@@ -277,6 +287,50 @@ function renderTanggalDinamis(periode) {
 
   document.getElementById("tanggalDinamis").textContent = text;
 }
+
+        // modal saldo
+const modalSaldo = document.getElementById("modalSaldo");
+
+function closeSaldo() {
+  modalSaldo.style.display = "none";
+}
+
+
+function openSaldo(title, sqm, reg, uns) {
+  document.getElementById("modalTitle").textContent = title;
+  document.getElementById("mSQM").textContent = sqm;
+  document.getElementById("mREG").textContent = reg;
+  document.getElementById("mUNS").textContent = uns;
+
+  const ctx = document.getElementById("miniChart");
+
+  // hancurkan chart lama (biar tidak numpuk)
+  if (miniChart) miniChart.destroy();
+
+  miniChart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: ["SQM", "REGULER", "UNSPEC"],
+      datasets: [{
+        label: "Jumlah Tiket",
+        data: [sqm, reg, uns]
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+
+  modalSaldo.style.display = "flex";
+}
+
+
 
 
 filterWorkzone.addEventListener("change", applyFilter);
