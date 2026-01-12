@@ -116,3 +116,46 @@ table {
 }
 
 
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.imjas-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.imjas-table th {
+  background: #1e3a8a;
+  color: white;
+  padding: 6px;
+  border: 1px solid #0f172a;
+  text-align: center;
+}
+
+.imjas-table td {
+  padding: 6px;
+  border: 1px solid #1e293b;
+  text-align: center;
+}
+
+/* status */
+.ok {
+  background: #bbf7d0;
+  color: #065f46;
+  font-weight: bold;
+}
+
+.warn {
+  background: #fef3c7;
+  color: #92400e;
+  font-weight: bold;
+}
+
+.bad {
+  background: #fecaca;
+  color: #7f1d1d;
+  font-weight: bold;
+}
