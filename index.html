@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard Teknisi</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1>Dashboard Performansi Teknisi</h1>
+  <p>Monitoring Open, Close, dan Proggres Kerja</p>
+</header>
+
+<main>
+
+  <!-- FILTER -->
+  <section class="card">
+    <label>Filter Teknisi:</label>
+    <select id="filterTeknisi">
+      <option value="ALL">Semua Teknisi</option>
+    </select>
+
+    <label>Periode:</label>
+    <select id="filterPeriode">
+      <option value="HARIAN">Harian</option>
+      <option value="MINGGUAN">Mingguan</option>
+      <option value="BULANAN">Bulanan</option>
+    </select>
+  </section>
+
+  <!-- KPI -->
+  <section class="kpi">
+    <div class="card"><h4>Total Teknisi</h4><span id="kpiTeknisi">0</span></div>
+    <div class="card"><h4>Total Tiket</h4><span id="kpiTotal">0</span></div>
+    <div class="card"><h4>Total Close</h4><span id="kpiClose">0</span></div>
+    <div class="card"><h4>Total Open</h4><span id="kpiOpen">0</span></div>
+  </section>
+
+  <!-- TABLE -->
+  <section class="card">
+    <h2>Data Performansi</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>STO</th>
+          <th>Teknisi</th>
+          <th>Teknisi 2</th>
+          <th>Total Tiket</th>
+          <th>Open</th>
+          <th>Close</th>
+          <th>Tanggal</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </section>
+
+  <!-- PERFORMANCE -->
+  <section class="card">
+    <h2>Performansi Teknisi</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Teknisi</th>
+          <th>Open</th>
+          <th>Close</th>
+          <th>Achievement</th>
+        </tr>
+      </thead>
+      <tbody id="perfBody"></tbody>
+    </table>
+  </section>
+
+  <!-- CHART -->
+  <section class="card">
+    <h2>Grafik Performansi</h2>
+    <canvas id="chart"></canvas>
+  </section>
+
+</main>
+
+<footer>© 2026 Dashboard Teknisi</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
