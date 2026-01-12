@@ -4,11 +4,12 @@
   <meta charset="UTF-8">
   <title>Dashboard Teknisi</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-
 <header>
   <h1>Dashboard Performansi Teknisi</h1>
+  <h3>HSA Palembang ULU</h3>
   <p>Monitoring Open, Close, dan Proggres Kerja</p>
 </header>
 
@@ -54,7 +55,7 @@
         <tr>
           <th>Workzone</th>
           <th>Teknisi</th>
-          <th></th>
+          <th>Teknisi</th>
           <th>Total Tiket</th>
           <th>Open</th>
           <th>Close</th>
@@ -75,15 +76,36 @@
   <section class="card">
   <h2>Performansi Teknisi</h2>
   <table>
-    <thead>
-      <tr>
-        <th>Rank</th>
-        <th>Nama Teknisi</th>
-        <th>Open</th>
-        <th>Close</th>
-        <th>Pencapaian</th>
-      </tr>
-    </thead>
+   <thead>
+  <tr>
+    <th rowspan="2">Rank</th>
+    <th rowspan="2">Teknisi</th>
+    <th rowspan="2">Teknisi</th>
+
+    <th rowspan="2">Open SQM</th>
+    <th rowspan="2">Open Reguler</th>
+    <th rowspan="2">Open Unspec</th>
+
+    <th rowspan="2">Close SQM</th>
+    <th rowspan="2">Close Reguler</th>
+    <th rowspan="2">Close Unspec</th>
+
+    <!-- 🔥 GROUP HEADER -->
+    <th colspan="4">IMJAS</th>
+
+    <th rowspan="2">Open</th>
+    <th rowspan="2">Close</th>
+    <th rowspan="2">Pencapaian</th>
+  </tr>
+
+  <tr>
+    <!-- 🔽 SUB HEADER IMJAS -->
+    <th>Ixsa ODP</th>
+    <th>Ixsa ODC</th>
+    <th>Validasi Tiang</th>
+    <th>Uji Petik</th>
+  </tr>
+</thead>
     <tbody id="perfBody"></tbody>
   </table>
 </section>
@@ -99,5 +121,24 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="script.js"></script>
+
+  <!--DETAIL TIKET SALDO-->
+<div id="modalSaldo" class="modal">
+  <div class="modal-content">
+    <h3 id="modalTitle">Detail Saldo Tiket</h3>
+
+    <ul>
+      <li>SQM : <b id="mSQM">0</b></li>
+      <li>REGULER : <b id="mREG">0</b></li>
+      <li>UNSPEC : <b id="mUNS">0</b></li>
+    </ul>
+
+<!-- MINI CHART -->
+    <canvas id="miniChart" height="140"></canvas>
+
+    <button onclick="closeSaldo()">Tutup</button>
+  </div>
+</div>
+
 </body>
 </html>
