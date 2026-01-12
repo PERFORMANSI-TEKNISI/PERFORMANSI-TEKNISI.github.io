@@ -11,6 +11,68 @@ const filterPeriode = document.getElementById("filterPeriode");
 let rawData = [];
 let chart;
 
+const API_IMJAS = "https://script.google.com/macros/s/AKfycbzwg6_NqHXxI352YmgaNoZJfVHOLmSpOz9x3bbXEirJKfx9R1cTjGbHJO402799kD7n0g/exec";
+
+// helper aman
+const v = (d, k) => d[k] ?? 0;
+
+fetch(API_IMJAS)
+  .then(res => res.json())
+  .then(res => {
+    if (res.status !== "success") {
+      alert("Gagal load data IMJAS");
+      return;
+    }
+    renderIMJAS(res.data);
+  });
+
+function renderIMJAS(data) {
+  const body = document.getElementById("imjasBody");
+  body.innerHTML = "";
+
+  data.forEach(d => {
+    body.innerHTML += `
+      <tr>
+        <td>${v(d,"STO")}</td>
+        <td>${v(d,"TEKNISI_1")}</td>
+        <td>${v(d,"TEKNISI_2")}</td>
+
+        <td>${v(d,"IXSA_ODC_TARGET")}</td>
+        <td>${v(d,"IXSA_ODC_PROG")}</td>
+        <td class="${warna(v(d,"IXSA_ODC_KURANG"))}">
+          ${v(d,"IXSA_ODC_KURANG")}
+        </td>
+
+        <td>${v(d,"IXSA_ODP_TARGET")}</td>
+        <td>${v(d,"IXSA_ODP_PROG")}</td>
+        <td class="${warna(v(d,"IXSA_ODP_KURANG"))}">
+          ${v(d,"IXSA_ODP_KURANG")}
+        </td>
+
+        <td>${v(d,"TIANG_TARGET")}</td>
+        <td>${v(d,"TIANG_PROG")}</td>
+        <td class="${warna(v(d,"TIANG_KURANG"))}">
+          ${v(d,"TIANG_KURANG")}
+        </td>
+
+        <td>${v(d,"UJI_PETIK_TARGET")}</td>
+        <td>${v(d,"UJI_PETIK_PROG")}</td>
+        <td class="${warna(v(d,"UJI_PETIK_KURANG"))}">
+          ${v(d,"UJI_PETIK_KURANG")}
+        </td>
+      </tr>
+    `;
+  });
+}
+
+
+function warna(val) {
+  if (val == 0) return "ok";
+  if (val <= 10) return "warn";
+  return "bad";
+}
+
+
 fetch(API_URL)
   .then(r => r.json())
   .then(json => {
@@ -205,14 +267,7 @@ function renderPerformance(data) {
     <td>${r.closeREG}</td>
     <td>${r.closeUNS}</td>
 
-    <!-- VALIDASI -->
-    <td>0</td>
-    <td>0</td>
-    <td>0</td>
-    <td>0</td>
-
-    <td class="clickable">${r.open}</td>
-    <td class="clickable">${r.close}</td>
+    <td>${r.close}</td>
     <td>${r.ach}%</td>
   </tr>
 `;
@@ -339,3 +394,4 @@ filterJenis.addEventListener("change", applyFilter);
 
 
 renderTanggalHariIni();
+
