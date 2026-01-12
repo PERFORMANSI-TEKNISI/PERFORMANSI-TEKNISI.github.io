@@ -1,9 +1,10 @@
+const perfBody2 = document.getElementById("perfBody2");
 const filterJenis = document.getElementById("filterJenis");
 const API_URL = "https://script.google.com/macros/s/AKfycbwOkWjZTW7ikhAcexlE6JEKD8Vo7EZ5YncP9oVxWgJSqJh3ppYQW-11rg-J1t38rnZMqw/exec";
 
 const tableBody = document.getElementById("tableBody");
 const perfBody = document.getElementById("perfBody");
-const filterTeknisi = document.getElementById("filterTeknisi");
+const filterWorkzone = document.getElementById("filterWorkzone");
 const filterPeriode = document.getElementById("filterPeriode");
 
 let rawData = [];
@@ -18,21 +19,21 @@ fetch(API_URL)
   });
 
 function initFilter(data) {
-  [...new Set(data.map(d => d.TEKNISI))].forEach(t => {
-    filterTeknisi.innerHTML += `<option value="${t}">${t}</option>`;
+  [...new Set(data.map(d => d.WORKZONE))].forEach(t => {
+    filterWorkzone.innerHTML += `<option value="${t}">${t}</option>`;
   });
 }
 
 function applyFilter() {
-  const teknisi = filterTeknisi.value;
+  const workzone = filterWorkzone.value;
   const periode = filterPeriode.value;
   const jenis = filterJenis.value;
 
-  // 1. Filter teknisi
+  // 1. Filter workzone
   let filtered =
-    teknisi === "ALL"
+    workzone === "ALL"
       ? rawData
-      : rawData.filter(d => d.TEKNISI === teknisi);
+      : rawData.filter(d => d.WORKZONE === workzone);
 
   // 2. Group by periode (harian / mingguan / bulanan)
   filtered = groupByPeriod(filtered, periode);
@@ -76,6 +77,7 @@ function applyFilter() {
   renderKPI(filtered);
   renderPerformance(filtered);
   renderChart(filtered);
+  renderTanggalDinamis(filterPeriode.value);
 }
 
 
@@ -125,9 +127,22 @@ function renderTable(data) {
 }
 
 function renderKPI(data) {
-  document.getElementById("kpiTeknisi").textContent =
-    new Set(data.map(d => d.TEKNISI)).size;
+  // gabungkan teknisi & teknisi2
+  const teknisiGabungan = new Set();
 
+  data.forEach(d => {
+    if (d.TEKNISI && d.TEKNISI.trim() !== "") {
+      teknisiGabungan.add(d.TEKNISI.trim());
+    }
+    if (d.TEKNISI2 && d.TEKNISI2.trim() !== "") {
+      teknisiGabungan.add(d.TEKNISI2.trim());
+    }
+  });
+
+  document.getElementById("kpiTeknisi").textContent =
+    teknisiGabungan.size;
+
+  // KPI lain tetap
   document.getElementById("kpiTotal").textContent =
     data.reduce((a,b)=>a+Number(b.TOTAL_TIKET),0);
 
@@ -138,29 +153,56 @@ function renderKPI(data) {
     data.reduce((a,b)=>a+Number(b.OPEN_TTL),0);
 }
 
+
 function renderPerformance(data) {
   const map = {};
 
   data.forEach(d => {
-    if (!map[d.TEKNISI]) map[d.TEKNISI]={open:0, close:0};
-    map[d.TEKNISI].open += d.OPEN_TTL;
-    map[d.TEKNISI].close += d.CLOSE_TIKET;
+    const open = Number(d.OPEN_TTL);
+    const close = Number(d.CLOSE_TIKET);
+
+    const shareOpen = open / 2;
+    const shareClose = close / 2;
+
+    // Teknisi utama
+    if (d.TEKNISI) {
+      if (!map[d.TEKNISI]) map[d.TEKNISI] = { open: 0, close: 0 };
+      map[d.TEKNISI].open += shareOpen;
+      map[d.TEKNISI].close += shareClose;
+    }
+
+    // Teknisi 2
+    if (d.TEKNISI2) {
+      if (!map[d.TEKNISI2]) map[d.TEKNISI2] = { open: 0, close: 0 };
+      map[d.TEKNISI2].open += shareOpen;
+      map[d.TEKNISI2].close += shareClose;
+    }
   });
 
-  const result = Object.keys(map).map(t => {
-    const total = map[t].open + map[t].close;
-    const ach = total === 0 ? 0 : Math.round(map[t].close / total * 100);
-    return { teknisi:t, ...map[t], ach };
-  }).sort((a,b)=>b.ach-a.ach);
+  // Konversi ke array + hitung achievement
+  const result = Object.keys(map).map(nama => {
+    const open = Math.round(map[nama].open);
+    const close = Math.round(map[nama].close);
+    const total = open + close;
+    const ach = total === 0 ? 0 : Math.round((close / total) * 100);
+    return { nama, open, close, ach };
+  });
+
+  // Ranking berdasarkan achievement
+  result.sort((a, b) => b.ach - a.ach);
 
   perfBody.innerHTML = "";
 
-  result.forEach((r,i)=>{
-    const cls = r.ach>=80?"perf-good":r.ach>=50?"perf-medium":"perf-bad";
+  result.forEach((r, i) => {
+    const cls =
+      r.ach >= 80 ? "perf-good" :
+      r.ach >= 50 ? "perf-medium" :
+      "perf-bad";
+
     perfBody.innerHTML += `
       <tr class="${cls}">
-        <td>${i+1}</td>
-        <td>${r.teknisi}</td>
+        <td>${i + 1}</td>
+        <td>${r.nama}</td>
         <td>${r.open}</td>
         <td>${r.close}</td>
         <td>${r.ach}%</td>
@@ -168,6 +210,7 @@ function renderPerformance(data) {
     `;
   });
 }
+
 
 function renderChart(data) {
   const map = {};
@@ -198,8 +241,47 @@ function renderChart(data) {
   });
 }
 
-filterTeknisi.addEventListener("change", applyFilter);
+// Tanggal hari ini
+function renderTanggalDinamis(periode) {
+  const now = new Date();
+  let text = "";
+
+  if (periode === "HARIAN") {
+    text = now.toLocaleDateString("id-ID", {
+      weekday: "long",
+      day: "2-digit",
+      month: "long",
+      year: "numeric"
+    });
+  }
+
+  if (periode === "MINGGUAN") {
+    const start = new Date(now);
+    start.setDate(now.getDate() - now.getDay() + 1);
+
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
+
+    text =
+      start.toLocaleDateString("id-ID") +
+      " - " +
+      end.toLocaleDateString("id-ID");
+  }
+
+  if (periode === "BULANAN") {
+    text = now.toLocaleDateString("id-ID", {
+      month: "long",
+      year: "numeric"
+    });
+  }
+
+  document.getElementById("tanggalDinamis").textContent = text;
+}
+
+
+filterWorkzone.addEventListener("change", applyFilter);
 filterPeriode.addEventListener("change", applyFilter);
 filterJenis.addEventListener("change", applyFilter);
 
 
+renderTanggalHariIni();
