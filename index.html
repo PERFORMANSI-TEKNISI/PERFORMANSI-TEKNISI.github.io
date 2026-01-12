@@ -16,9 +16,9 @@
 
   <!-- FILTER -->
   <section class="card">
-    <label>STO :</label>
-    <select id="filterTeknisi">
-      <option value="ALL">Semua STO</option>
+    <label>Workzone :</label>
+    <select id="filterWorkzone">
+      <option value="ALL">Semua Workzone</option>
     </select>
 
     <label>Jenis Tiket:</label>
@@ -52,13 +52,19 @@
     <table>
       <thead>
         <tr>
-          <th>STO</th>
+          <th>Workzone</th>
           <th>Teknisi</th>
-          <th>Teknisi 2</th>
+          <th></th>
           <th>Total Tiket</th>
           <th>Open</th>
           <th>Close</th>
-          <th>Tanggal</th>
+    <!--Tanggal-->
+          <div class="card">
+            <h3>Tanggal</h3>
+            <span id="tanggalDinamis">-</span>
+          </div>
+
+
         </tr>
       </thead>
       <tbody id="tableBody"></tbody>
@@ -67,27 +73,26 @@
 
   <!-- PERFORMANCE -->
   <section class="card">
-    <h2>Performansi Teknisi</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Rank</th>
-          <th>Teknisi</th>
-          <th>Open</th>
-          <th>Close</th>
-          <th>Achievement</th>
-        </tr>
-      </thead>
-      <tbody id="perfBody"></tbody>
-    </table>
-  </section>
+  <h2>Performansi Teknisi</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Rank</th>
+        <th>Nama Teknisi</th>
+        <th>Open</th>
+        <th>Close</th>
+        <th>Pencapaian</th>
+      </tr>
+    </thead>
+    <tbody id="perfBody"></tbody>
+  </table>
+</section>
 
   <!-- CHART -->
   <section class="card">
     <h2>Grafik Performansi</h2>
     <canvas id="chart"></canvas>
   </section>
-
 </main>
 
 <footer>© 2026 Dashboard Teknisi</footer>
@@ -96,4 +101,3 @@
 <script src="script.js"></script>
 </body>
 </html>
-
